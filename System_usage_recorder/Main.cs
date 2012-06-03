@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reflection;
 using System.ServiceProcess;
-using System.Threading;
 
 namespace System_usage_recorder
 {
@@ -16,25 +15,26 @@ namespace System_usage_recorder
 		protected override void OnStart(string[] args)
 		{
 			// Record by every 10min.
-			new Timer(
-				new TimerCallback(Record),
-				null,
-				TimeSpan.FromMinutes(0),
-				TimeSpan.FromMinutes(10)
-			);
+			timer = new System.Timers.Timer();
+			timer.Interval = 1000;
+			timer.Elapsed += new System.Timers.ElapsedEventHandler(Record);
+			timer.Start();
 		}
 
 		protected override void OnStop()
 		{
+			timer.Stop();
 		}
 
-		private void Record(object state)
+		private System.Timers.Timer timer;
+
+		private void Record(object sender, System.Timers.ElapsedEventArgs e)
 		{
 			try
 			{
+				string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 				try
 				{
-					string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 					string log_path = Path.Combine(app_path, "system_usage.txt");
 
 					StreamWriter sw = new StreamWriter(log_path, true);
@@ -43,7 +43,6 @@ namespace System_usage_recorder
 				}
 				catch (Exception ex)
 				{
-					string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 					string log_path = Path.Combine(app_path, "error.txt");
 					StreamWriter sw = new StreamWriter(log_path, true);
 					sw.WriteLine(ex.Message + '\n' + ex.StackTrace);
