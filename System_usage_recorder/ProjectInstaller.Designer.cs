@@ -39,7 +39,7 @@
 			// 
 			// serviceInstaller
 			// 
-			this.serviceInstaller.Description = "System_usage_recorder";
+			this.serviceInstaller.Description = "Record the time of system usage.";
 			this.serviceInstaller.ServiceName = "System_usage_recorder";
 			this.serviceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
 			// 

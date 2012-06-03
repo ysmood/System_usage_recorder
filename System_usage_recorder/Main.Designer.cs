@@ -31,8 +31,6 @@
 			// 
 			// Main
 			// 
-			this.CanHandlePowerEvent = true;
-			this.CanHandleSessionChangeEvent = true;
 			this.ServiceName = "System_usage_recorder";
 
 		}

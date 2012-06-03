@@ -30,12 +30,27 @@ namespace System_usage_recorder
 
 		private void Record(object state)
 		{
-			string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			string log_path = Path.Combine(app_path, "system_usage.txt");
+			try
+			{
+				try
+				{
+					string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+					string log_path = Path.Combine(app_path, "system_usage.txt");
 
-			StreamWriter sw = new StreamWriter(log_path, true);
-			sw.WriteLine(DateTime.Now.ToString("u"));
-			sw.Close();
+					StreamWriter sw = new StreamWriter(log_path, true);
+					sw.WriteLine(DateTime.Now.ToString("u"));
+					sw.Close();
+				}
+				catch (Exception ex)
+				{
+					string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+					string log_path = Path.Combine(app_path, "error.txt");
+					StreamWriter sw = new StreamWriter(log_path, true);
+					sw.WriteLine(ex.Message + '\n' + ex.StackTrace);
+					sw.Close();
+				}
+			}
+			catch { };
 		}
 	}
 }
