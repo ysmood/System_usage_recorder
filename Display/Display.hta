@@ -19,25 +19,49 @@
 		border: 1px solid #ccc;
 		box-shadow: 0 1px 5px #aaa;
 	}
-	.details-toggle {
+	.apply-unit {
+		margin-top: 10px;
+	}
+	a {
 		font-size: 14px;
 		text-decoration: none;
 	}
-	.details-toggle:hover {
-		border-bottom: 2px dashed #48a;
+	a:hover {
+		border-bottom: 2px solid #48a;
+	}
+	input[type = "input"] {
+		padding: 3px 5px;
+		border-radius: 3px;
+		border: 1px solid #aaa;
+		box-shadow: 0 0 3px #ccc inset;
+	}
+	input[type = "input"]:focus {
+		border: 1px solid #49b;
 	}
 </style>
 </head>
 
 <body>
+	<div class="table unit">
+		<form>
+			<div>Wattage</div>
+			<input class="wattage" type="input" /> kW / h
+			<div>Price</div>
+			<input class="price" type="input" /> ¥ / (kW·h)
+			<div class="apply-unit">
+				<a href="#">Apply</a>
+			</div>
+		</form>
+	</div>
+
 	<div class="table">
 		<h2>Monthly Power Usage</h2>
 		<table class="monthly">
 			<tr>
 				<th>Month</th>
-				<th>Time(H)</th>
-				<th>Powers(KW)</th>
-				<th>Money(¥)</th>
+				<th>Hours</th>
+				<th>kW·h</th>
+				<th>Cost</th>
 			</tr>
 		</table>
 	</div>
@@ -49,9 +73,9 @@
 		<table class="daily">
 			<tr>
 				<th>Date</th>
-				<th>Time(H)</th>
-				<th>Powers(KW)</th>
-				<th>Money(¥)</th>
+				<th>Hours</th>
+				<th>kW·h</th>
+				<th>Cost</th>
 			</tr>
 		</table>
 	</div>
@@ -69,84 +93,131 @@
 
 <script type="text/JavaScript" src="lib.js"></script>
 <script type="text/javascript">
-	$(window).load(function(){
-		$.ajax({
-			url: 'system_usage.txt',
-			dataType: 'text',
-			success: show_table
-		});
+
+var wattage = 280;
+var price = 0.57;
+
+$(window).load(function(){
+	$.ajax({
+		url: 'settings.txt',
+		dataType: 'text',
+		success: function(data)
+		{
+			try{ eval(data); }
+			catch(ex) {}
+			$('input.wattage').val(wattage);
+			$('input.price').val(price);
+		},
+		complete: function()
+		{
+			$.ajax({
+				url: 'system_usage.txt',
+				dataType: 'text',
+				success: show_table
+			});
+		}
+	});
+});
+
+function show_table(data)
+{
+	if(data.length == 0)
+	{
+		alert('No data recorded.');
+		return;
+	}
+
+	var list = data.split('\n');
+
+	var $month_table = $('.monthly');
+	var $day_table = $('.daily');
+	var $details = $('.details');
+
+	var m_count = 0;
+	var d_count = 0;
+	var last_month = list[0].substr(5, 2);
+	var last_day = list[0].substr(8, 2);
+
+	for(var i =0; i < list.length; i++)
+	{
+		var date_time = list[i].split(' ')[0].split('-');
+
+		var month = date_time[1];
+		var day = date_time[2];
+
+		if(list[i] != '' &&
+			day == last_day)
+			d_count++;
+		else
+		{
+			insert_row($day_table, list[i - 1].substr(0, 10), d_count);
+
+			d_count = 0;
+		}
+		last_day = day;
+
+		if(list[i] != '' &&
+			month == last_month)
+			m_count++;
+		else
+		{
+			insert_row($month_table, list[i - 1].substr(0, 7), m_count);
+
+			m_count = 0;
+		}
+		last_month = month;
+	}
+
+	$details.toggle().text(data);
+	$('.details-toggle').click(function(){
+		$details.toggle();
 	});
 
-	function show_table(data)
-	{
-		if(data.length == 0)
-		{
-			alert('No data recorded.');
-			return;
-		}
-
-		var list = data.split('\n');
-
-		var $month_table = $('.monthly');
-		var $day_table = $('.daily');
-		var $details = $('.details');
-
-		var m_count = 0;
-		var d_count = 0;
-		var last_month = list[0].substr(5, 2);
-		var last_day = list[0].substr(8, 2);
-
-		for(var i =0; i < list.length; i++)
-		{
-			var date_time = list[i].split(' ')[0].split('-');
-
-			var month = date_time[1];
-			var day = date_time[2];
-
-			if(list[i] != '' &&
-				day == last_day)
-				d_count++;
-			else
+	$('.apply-unit').click(function(){
+		var new_wattage = $('input.wattage').val();
+		$('.monthly, .daily').find('td:nth-child(3)').each(function(){
+			var $grid = $(this);
+			var v = parseFloat($grid.text()) / wattage * new_wattage;
+			if(v <= 0)
 			{
-				insert_row($day_table, list[i - 1].substr(0, 10), d_count);
-
-				d_count = 0;
+				alert('Please input a valid value!');
+				throw "Exit Error"; 
 			}
-			last_day = day;
-
-			if(list[i] != '' &&
-				month == last_month)
-				m_count++;
-			else
-			{
-				insert_row($month_table, list[i - 1].substr(0, 7), m_count);
-
-				m_count = 0;
-			}
-			last_month = month;
-		}
-
-		$details.toggle().text(data);
-		$('.details-toggle').click(function(){
-			$details.toggle();
+			$grid.text(v.toFixed(2));
 		});
 
-		function insert_row(table, title, count)
-		{
-			// Comput the detail info.
-			var hours = count * 10 / 60;
-			var powers = hours * 280 / 1000;
-			var money = powers * 0.57;
+		var new_price = $('input.price').val();
+		$('.monthly, .daily').find('td:nth-child(4)').each(function(){
+			var $grid = $(this);
+			var v = parseFloat($grid.text()) / price * new_price / wattage * new_wattage;
+			if(v <= 0)
+			{
+				alert('Please input a valid value!');
+				throw "Exit Error"; 
+			}
+			$grid.text(v.toFixed(2));
+		});
 
-			table.append(
-				$('<tr>')
-					.append($('<td>').text(title))
-					.append($('<td>').text(hours.toFixed(2)))
-					.append($('<td>').text(powers.toFixed(2)))
-					.append($('<td>').text(money.toFixed(2)))
-			);
-		}
+		wattage = new_wattage;
+		price = new_price;
+	});
+
+	function insert_row(table, title, count)
+	{
+		// Comput the detail info.
+		var hours = count * 10 / 60;
+		var power = hours * wattage / 1000;
+		var money = power * price;
+
+		table.append(
+			$('<tr>')
+				.append($('<td>').text(title))
+				.append($('<td>').text(hours.toFixed(2)))
+				.append($('<td>').text(power.toFixed(2)))
+				.append($('<td>').text(money.toFixed(2)))
+		);
 	}
+}
 </script>
 
 </html>
