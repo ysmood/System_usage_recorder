@@ -3,16 +3,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="x-ua-compatible" content="ie=11">
-<meta http-equiv="x-ua-compatible" content="ie=10">
-<meta http-equiv="x-ua-compatible" content="ie=9">
-<meta http-equiv="x-ua-compatible" content="ie=8">
+<meta http-equiv="x-ua-compatible" content="ie=11" />
+<meta http-equiv="x-ua-compatible" content="ie=10" />
+<meta http-equiv="x-ua-compatible" content="ie=9" />
+<meta http-equiv="x-ua-compatible" content="ie=8" />
 <meta charset="utf-8" />
 <title>System Usage Display</title>
 <link rel="stylesheet" type="text/css" href="screen.css" />
 <style type="text/css">
 	.table {
 		margin: 30px;
+	}
+	.table table {
 		width: 400px;
 		border: 1px solid #ccc;
 		box-shadow: 0 1px 5px #aaa;
@@ -21,14 +23,31 @@
 </head>
 
 <body>
-	<table class="table">
-		<tr>
-			<th>Month</th>
-			<th>Time(H)</th>
-			<th>Powers(KW)</th>
-			<th>Money(¥)</th>
-		</tr>
-	</table>
+	<div class="table">
+		<h2>Monthly Power Usage</h2>
+		<table class="monthly">
+			<tr>
+				<th>Month</th>
+				<th>Time(H)</th>
+				<th>Powers(KW)</th>
+				<th>Money(¥)</th>
+			</tr>
+		</table>
+	</div>
+
+	<hr>
+
+	<div class="table">
+		<h2>Daily Power Usage</h2>
+		<table class="daily">
+			<tr>
+				<th>Date</th>
+				<th>Time(H)</th>
+				<th>Powers(KW)</th>
+				<th>Money(¥)</th>
+			</tr>
+		</table>
+	</div>
 </body>
 
 <script type="text/JavaScript" src="lib.js"></script>
@@ -37,43 +56,72 @@
 		$.ajax({
 			url: 'system_usage.txt',
 			dataType: 'text',
-			success: data_loaded
+			success: show_table
 		});
 	});
 
-	function data_loaded(data)
+	function show_table(data)
 	{
+		if(data.length == 0)
+		{
+			alert('No data recorded.');
+			return;
+		}
+
 		var list = data.split('\n');
-		var $table = $('.table');
 
-		var count = 0;
-		var last;
+		var $month_table = $('.monthly');
+		var $day_table = $('.daily');
 
-		last = list[0].substr(5, 2);
+		var m_count = 0;
+		var d_count = 0;
+		var last_month = list[0].substr(5, 2);
+		var last_day = list[0].substr(8, 2);
 
 		for(var i =0; i < list.length; i++)
 		{
-			var month = list[i].substr(5, 2);
-			if(list[i] != '' && month == last)
-				count++;
+			var date_time = list[i].split(' ')[0].split('-');
+
+			var month = date_time[1];
+			var day = date_time[2];
+
+			if(list[i] != '' &&
+				day == last_day)
+				d_count++;
 			else
 			{
-				// Comput the detail info.
-				var hours = count * 10 / 60;
-				var powers = hours * 280 / 1000;
-				var money = powers * 0.8;
+				insert_row($day_table, list[i - 1].substr(0, 10), d_count);
 
-				$table.append(
-					$('<tr>')
-						.append($('<td>').text(list[i - 1].substr(0, 7)))
-						.append($('<td>').text(hours.toFixed(2)))
-						.append($('<td>').text(powers.toFixed(2)))
-						.append($('<td>').text(money.toFixed(2)))
-				);
-				count = 0;
+				d_count = 0;
 			}
+			last_day = day;
 
-			last = month;
+			if(list[i] != '' &&
+				month == last_month)
+				m_count++;
+			else
+			{
+				insert_row($month_table, list[i - 1].substr(0, 7), m_count);
+
+				m_count = 0;
+			}
+			last_month = month;
+		}
+
+		function insert_row(table, title, count)
+		{
+			// Comput the detail info.
+			var hours = count * 10 / 60;
+			var powers = hours * 280 / 1000;
+			var money = powers * 0.57;
+
+			table.append(
+				$('<tr>')
+					.append($('<td>').text(title))
+					.append($('<td>').text(hours.toFixed(2)))
+					.append($('<td>').text(powers.toFixed(2)))
+					.append($('<td>').text(money.toFixed(2)))
+			);
 		}
 	}
 </script>
