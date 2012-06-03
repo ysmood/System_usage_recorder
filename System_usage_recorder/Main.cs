@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.ServiceProcess;
-using System.Text;
 using System.IO;
+using System.Reflection;
+using System.ServiceProcess;
+using System.Threading;
 
 namespace System_usage_recorder
 {
@@ -18,15 +15,26 @@ namespace System_usage_recorder
 
 		protected override void OnStart(string[] args)
 		{
-			StreamWriter sw = new StreamWriter(@"D:\system_usage.txt", true);
-			sw.WriteLine("Start: " + DateTime.Now.ToString());
-			sw.Close();
+			// Record by every 10min.
+			new Timer(
+				new TimerCallback(Record),
+				null,
+				TimeSpan.FromMinutes(0),
+				TimeSpan.FromMinutes(10)
+			);
 		}
 
 		protected override void OnStop()
 		{
-			StreamWriter sw = new StreamWriter(@"D:\system_usage.txt", true);
-			sw.WriteLine("Close: " + DateTime.Now.ToString());
+		}
+
+		private void Record(object state)
+		{
+			string app_path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			string log_path = Path.Combine(app_path, "system_usage.txt");
+
+			StreamWriter sw = new StreamWriter(log_path, true);
+			sw.WriteLine(DateTime.Now.ToString("u"));
 			sw.Close();
 		}
 	}

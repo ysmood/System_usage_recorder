@@ -1,0 +1,73 @@
+<!-- saved from url=(0014)about:internet -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="x-ua-compatible" content="ie=11">
+<meta http-equiv="x-ua-compatible" content="ie=10">
+<meta http-equiv="x-ua-compatible" content="ie=9">
+<meta http-equiv="x-ua-compatible" content="ie=8">
+<meta charset="utf-8" />
+<title>System Usage Display</title>
+<link rel="stylesheet" type="text/css" href="screen.css" />
+<style type="text/css">
+	.table {
+		margin: 30px;
+		width: 300px;
+		box-shadow: 0 1px 5px #aaa;
+	}
+</style>
+</head>
+
+<body>
+	<table class="table">
+		<tr>
+			<th>Month</th>
+			<th>Hours</th>
+		</tr>
+	</table>
+</body>
+
+<script type="text/JavaScript" src="lib.js"></script>
+<script type="text/javascript">
+	$(window).load(function(){
+		$.ajax({
+			url: 'system_usage.txt',
+			dataType: 'text',
+			success: data_loaded
+		});
+	});
+
+	function data_loaded(data)
+	{
+		var list = data.split('\n');
+		var $table = $('.table');
+
+		var count = 0;
+		var last;
+
+		last = list[0].substr(5, 2);
+
+		for(var i =0; i < list.length; i++)
+		{
+			var month = list[i].substr(5, 2);
+			if(list[i] != '' && month == last)
+				count++;
+			else
+			{
+				var hours = count * 10 / 60;
+
+				$table.append(
+					$('<tr>')
+						.append($('<td>').text(list[i - 1].substr(0, 7)))
+						.append($('<td>').text(hours.toFixed(2)))
+				);
+				count = 0;
+			}
+
+			last = month;
+		}
+	}
+</script>
+
+</html>
