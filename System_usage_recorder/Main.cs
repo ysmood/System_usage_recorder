@@ -14,9 +14,11 @@ namespace System_usage_recorder
 
 		protected override void OnStart(string[] args)
 		{
+			Record(null, null);
+
 			// Record by every 10min.
 			timer = new System.Timers.Timer();
-			timer.Interval = 1000;
+			timer.Interval = TimeSpan.FromMinutes(10).TotalMilliseconds;
 			timer.Elapsed += new System.Timers.ElapsedEventHandler(Record);
 			timer.Start();
 		}
