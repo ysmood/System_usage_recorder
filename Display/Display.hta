@@ -13,7 +13,7 @@
 <style type="text/css">
 	.table {
 		margin: 30px;
-		width: 300px;
+		width: 400px;
 		box-shadow: 0 1px 5px #aaa;
 	}
 </style>
@@ -23,7 +23,9 @@
 	<table class="table">
 		<tr>
 			<th>Month</th>
-			<th>Hours</th>
+			<th>Time(H)</th>
+			<th>Powers(KW)</th>
+			<th>Money(¥)</th>
 		</tr>
 	</table>
 </body>
@@ -55,12 +57,17 @@
 				count++;
 			else
 			{
+				// Comput the detail info.
 				var hours = count * 10 / 60;
+				var powers = hours * 280 / 1000;
+				var money = powers * 0.8;
 
 				$table.append(
 					$('<tr>')
 						.append($('<td>').text(list[i - 1].substr(0, 7)))
 						.append($('<td>').text(hours.toFixed(2)))
+						.append($('<td>').text(powers.toFixed(2)))
+						.append($('<td>').text(money.toFixed(2)))
 				);
 				count = 0;
 			}
