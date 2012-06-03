@@ -86,7 +86,7 @@
 		<div>Price</div>
 		<input class="price" type="input" /> ¥ / (kW·h)
 		<div class="apply-unit">
-			<a href="#">Apply</a>
+			<a href="#this">Apply</a>
 		</div>
 	</div>
 
@@ -144,45 +144,16 @@ function show_table(data)
 
 	var list = data.split('\n');
 
-	var $month_table = $('.monthly');
-	var $day_table = $('.daily');
+	// Init daily table
+	var day_list = histogram(list, 10);
+	init_table($('.daily'), day_list);
+
+	// Init monthly table
+	var month_list = histogram(day_list, 7);
+	init_table($('.monthly'), month_list);
+
+	// Init details table
 	var $details = $('.details');
-
-	var m_count = 0;
-	var d_count = 0;
-	var last_month = list[0].substr(5, 2);
-	var last_day = list[0].substr(8, 2);
-
-	for(var i =0; i < list.length; i++)
-	{
-		var date_time = list[i].split(' ')[0].split('-');
-
-		var month = date_time[1];
-		var day = date_time[2];
-
-		if(list[i] != '' &&
-			day == last_day)
-			d_count++;
-		else
-		{
-			insert_row($day_table, list[i - 1].substr(0, 10), d_count);
-
-			d_count = 0;
-		}
-		last_day = day;
-
-		if(list[i] != '' &&
-			month == last_month)
-			m_count++;
-		else
-		{
-			insert_row($month_table, list[i - 1].substr(0, 7), m_count);
-
-			m_count = 0;
-		}
-		last_month = month;
-	}
-
 	$details.toggle().text(data);
 	$('.details-toggle').click(function(){
 		$details.toggle();
@@ -216,6 +187,41 @@ function show_table(data)
 		wattage = new_wattage;
 		price = new_price;
 	});
+
+	function histogram(list, l)
+	{
+		var arr = {};
+		var time;
+		if($.type(list) === 'array')
+		{
+			for(var i = 0; i < list.length; i++)
+			{
+				if(list[i] == '') continue;
+
+				time = list[i].substr(0, l);
+				if(arr[time] === undefined)	arr[time] = 0;
+				arr[time] += 1;
+			}
+		}
+		else if($.type(list) === 'object')
+		{
+			for(i in list)
+			{
+				time = i.substr(0, l);
+				if(arr[time] === undefined)	arr[time] = 0;
+				arr[time] += list[i];
+			}
+		}
+		return arr;
+	}
+
+	function init_table(table, list)
+	{
+		for(time in list)
+		{
+			insert_row(table, time, list[time]);
+		}
+	}
 
 	function insert_row(table, title, count)
 	{
