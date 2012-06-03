@@ -19,6 +19,13 @@
 		border: 1px solid #ccc;
 		box-shadow: 0 1px 5px #aaa;
 	}
+	.details-toggle {
+		font-size: 14px;
+		text-decoration: none;
+	}
+	.details-toggle:hover {
+		border-bottom: 2px dashed #48a;
+	}
 </style>
 </head>
 
@@ -48,6 +55,16 @@
 			</tr>
 		</table>
 	</div>
+
+	<hr>
+
+	<div class="table">
+		<h2 id="details-title">Details</h2>
+		<p>Record an alive signal by every 10 minutes. Click the toggle button below to show detail infomation.</p>
+		<a class="details-toggle" href="#details-title">toggle</a>
+		<pre class="details">
+		</pre>
+	</div>
 </body>
 
 <script type="text/JavaScript" src="lib.js"></script>
@@ -72,6 +89,7 @@
 
 		var $month_table = $('.monthly');
 		var $day_table = $('.daily');
+		var $details = $('.details');
 
 		var m_count = 0;
 		var d_count = 0;
@@ -107,6 +125,11 @@
 			}
 			last_month = month;
 		}
+
+		$details.toggle().text(data);
+		$('.details-toggle').click(function(){
+			$details.toggle();
+		});
 
 		function insert_row(table, title, count)
 		{
