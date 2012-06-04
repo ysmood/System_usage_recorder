@@ -18,9 +18,11 @@
 		margin: 30px;
 	}
 	.table table {
-		width: 400px;
 		border: 1px solid #ccc;
 		box-shadow: 0 1px 5px #aaa;
+	}
+	[id |= "chart"] {
+		margin-bottom: 30px
 	}
 	.apply-unit {
 		margin-top: 10px;
@@ -53,6 +55,7 @@
 
 	<div class="table">
 		<h2>Monthly Power Usage</h2>
+		<div id="chart-monthly" style="height:300px;"></div>
 		<table class="monthly">
 			<tr>
 				<th>Month</th>
@@ -67,6 +70,7 @@
 
 	<div class="table">
 		<h2>Daily Power Usage</h2>
+		<div id="chart-daily" style="height:300px;"></div>
 		<table class="daily">
 			<tr>
 				<th>Date</th>
@@ -81,6 +85,9 @@
 
 	<div class="table unit">
 		<h2>Settings</h2>
+		<div>
+			<a target="_blank" href="https://github.com/ysmood/System_usage_recorder">Projec Home</a>
+		</div>
 		<div>Wattage</div>
 		<input class="wattage" type="input" /> kW / h
 		<div>Price</div>
@@ -147,10 +154,12 @@ function show_table(data)
 	// Init daily table
 	var day_list = histogram(list, 10);
 	init_table($('.daily'), day_list);
+	init_chart('chart-daily', day_list);
 
 	// Init monthly table
 	var month_list = histogram(day_list, 7);
 	init_table($('.monthly'), month_list);
+	init_chart('chart-monthly', month_list);
 
 	// Init details table
 	var $details = $('.details');
@@ -159,6 +168,7 @@ function show_table(data)
 		$details.toggle();
 	});
 
+	// Init settings event.
 	$('.apply-unit').click(function(){
 		var new_wattage = $('input.wattage').val();
 		$('.monthly, .daily').find('td:nth-child(3)').each(function(){
@@ -237,6 +247,38 @@ function show_table(data)
 				.append($('<td>').text(power.toFixed(2)))
 				.append($('<td>').text(money.toFixed(2)))
 		);
+	}
+
+	function init_chart(name, list)
+	{		
+		var line = [];
+		for(i in list)
+		{
+			line.push(
+				[i, list[i] * 10.0 / 60 ]
+			);
+		}
+
+		if(line.length == 1)
+		{
+			line.splice(0, 0, ['2012-05-01', line[0][1]]);
+		}
+
+		$.jqplot(name, [line], {
+			animate: true,
+			axes:{
+				xaxis:{
+					renderer: $.jqplot.DateAxisRenderer
+				}
+			},
+            highlighter: {
+                show: true, 
+                showLabel: true, 
+                tooltipAxes: 'y',
+                sizeAdjust: 7.5,
+                tooltipLocation : 'ne'
+            }			
+		});
 	}
 }
 </script>
