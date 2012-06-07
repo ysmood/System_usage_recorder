@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System_usage_recorder", "System_usage_recorder\System_usage_recorder.csproj", "{9B643014-245A-4DD2-AB7E-176098D7E7DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prototype", "Prototype\Prototype.csproj", "{422D157E-E614-4015-BB36-924C5824634B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{9B643014-245A-4DD2-AB7E-176098D7E7DB}.Debug|x86.Build.0 = Debug|x86
 		{9B643014-245A-4DD2-AB7E-176098D7E7DB}.Release|x86.ActiveCfg = Release|x86
 		{9B643014-245A-4DD2-AB7E-176098D7E7DB}.Release|x86.Build.0 = Release|x86
+		{422D157E-E614-4015-BB36-924C5824634B}.Debug|x86.ActiveCfg = Debug|x86
+		{422D157E-E614-4015-BB36-924C5824634B}.Debug|x86.Build.0 = Debug|x86
+		{422D157E-E614-4015-BB36-924C5824634B}.Release|x86.ActiveCfg = Release|x86
+		{422D157E-E614-4015-BB36-924C5824634B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

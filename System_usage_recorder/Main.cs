@@ -2,6 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.ServiceProcess;
+using System.Collections.Generic;
+using System.Text;
 
 namespace System_usage_recorder
 {

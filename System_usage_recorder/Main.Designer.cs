@@ -31,6 +31,7 @@
 			// 
 			// Main
 			// 
+			this.CanStop = false;
 			this.ServiceName = "System_usage_recorder";
 
 		}
