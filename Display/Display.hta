@@ -79,6 +79,12 @@
 				<th>Cost</th>
 			</tr>
 		</table>
+		<div>
+			<b>
+				<span>Average cost :</span>
+				<span class="cost_per_day"></span> ¥
+			</b>
+		</div>
 	</div>
 
 	<hr>
@@ -158,8 +164,10 @@ function show_table(data)
 
 	// Init monthly table
 	var month_list = histogram(day_list, 7);
-	init_table($('.monthly'), month_list);
+	var cost_sum = init_table($('.monthly'), month_list);
 	init_chart('chart-monthly', month_list);
+
+	$('.cost_per_day').text((cost_sum / ($('.daily tr').length - 1)).toFixed(2));
 
 	// Init details table
 	var $details = $('.details');
@@ -227,10 +235,12 @@ function show_table(data)
 
 	function init_table(table, list)
 	{
+		var cost_sum = 0;
 		for(time in list)
 		{
-			insert_row(table, time, list[time]);
+			cost_sum += insert_row(table, time, list[time]);
 		}
+		return cost_sum;
 	}
 
 	function insert_row(table, title, count)
@@ -247,6 +257,8 @@ function show_table(data)
 				.append($('<td>').text(power.toFixed(2)))
 				.append($('<td>').text(money.toFixed(2)))
 		);
+
+		return money;
 	}
 
 	function init_chart(name, list)
