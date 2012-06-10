@@ -1,1 +1,2 @@
-Count the power usage of a PC per month.
+Count the power usage of a PC.
+My roommates used it to deal with the dispute of electricity costs.
